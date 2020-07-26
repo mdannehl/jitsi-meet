@@ -32,6 +32,7 @@ import { connect, equals } from '../../../base/redux';
 import { OverflowMenuItem } from '../../../base/toolbox';
 import { getLocalVideoTrack, toggleScreensharing } from '../../../base/tracks';
 import { VideoBlurButton } from '../../../blur';
+import { VideoBunnyEarsButton } from '../../../bunny-ears';
 import { ChatCounter, toggleChat } from '../../../chat';
 import { SharedDocumentButton } from '../../../etherpad';
 import { openFeedbackDialog } from '../../../feedback';
@@ -993,6 +994,10 @@ class Toolbox extends Component<Props, State> {
                 key = 'videobackgroundblur'
                 showLabel = { true }
                 visible = { this._shouldShowButton('videobackgroundblur') && !_screensharing } />,
+            <VideoBunnyEarsButton
+                key = 'videobunnyears'
+                showLabel = { true }
+                visible = { this._shouldShowButton('videobunnyears') && !_screensharing } />,
             <SettingsButton
                 key = 'settings'
                 showLabel = { true }

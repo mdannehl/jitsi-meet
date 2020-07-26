@@ -1,20 +1,11 @@
 {
     "addPeople": {
         "add": "Einladen",
-        "addContacts": "Laden Sie Ihre Kontakte ein",
-        "copyInvite": "Sitzungseinladung kopieren",
-        "copyLink": "Meeting-Link kopieren",
-        "copyStream": "Live-Streaming-Link kopieren",
         "countryNotSupported": "Wir unterstützen dieses Land noch nicht.",
         "countryReminder": "Telefonnummer nicht in den USA? Bitte sicherstellen, dass die Telefonnummer mit dem Ländercode beginnt.",
-        "defaultEmail": "Ihre Standard-E-Mail",
         "disabled": "Sie können keine Teilnehmer einladen.",
         "failedToAdd": "Fehler beim Hinzufügen von Teilnehmern",
         "footerText": "Abgehender Ruf ist deaktiviert.",
-        "inviteMoreHeader": "Sie sind alleine in der Sitzung",
-        "inviteMoreMailSubject": "An {{appName}} Meeting teilnehmen",
-        "inviteMorePrompt": "Mehr Leute einladen",
-        "linkCopied": "Link in die Zwischenablage kopiert",
         "loading": "Suche nach Teilnehmern und Telefonnummern",
         "loadingNumber": "Telefonnummer wird überprüft",
         "loadingPeople": "Suche nach einzuladenden Teilnehmern",
@@ -23,9 +14,6 @@
         "searchNumbers": "Telefonnummern hinzufügen",
         "searchPeople": "Nach Teilnehmern suchen",
         "searchPeopleAndNumbers": "Nach Teilnehmen suchen oder deren Telefonnummern hinzufügen",
-        "shareInvite": "Einladung zur Versammlung teilen",
-        "shareLink": "Teilen Sie den Meeting-Link, um andere einzuladen",
-        "shareStream": "Den Live-Streaming-Link freigeben",
         "telephone": "Telefon: {{number}}",
         "title": "Teilnehmer zu dieser Konferenz einladen"
     },
@@ -135,10 +123,8 @@
         "description": "Nichts passiert? Wir haben versucht, die Konferenz in {{app}} zu öffnen. Versuchen Sie es erneut oder treten Sie der Konferenz in {{app}} im Web bei.",
         "descriptionWithoutWeb": "Ist nichts passiert? Wir haben versucht, Ihre Besprechung in der „{{app}}“-Desktop-App zu starten.",
         "downloadApp": "App herunterladen",
-        "ifDoNotHaveApp": "Wenn Sie die App noch nicht haben:",
-        "ifHaveApp": "Wenn Sie die App bereits haben:",
-        "joinInApp": "An dem Meeting teilnehmen mit der App",
         "launchWebButton": "Im Web öffnen",
+        "openApp": "In der App fortfahren",
         "title": "Die Konferenz wird in {{app}} geöffnet...",
         "tryAgainButton": "Erneut mit der nativen Applikation versuchen"
     },
@@ -234,7 +220,7 @@
         "muteParticipantDialog": "Wollen Sie diesen Teilnehmer wirklich stummschalten? Sie können die Stummschaltung nicht wieder aufheben, der Teilnehmer kann dies aber jederzeit selbst tun.",
         "muteParticipantTitle": "Teilnehmer stummschalten?",
         "Ok": "OK",
-        "passwordLabel": "Dieses Meeting wurde von einem Teilnehmer gesichert. Bitte geben Sie das $t(lockRoomPassword) ein, um dem Meeting beizutreten.",
+        "passwordLabel": "Das Treffen wurde von einem Teilnehmer geslerrt. Bitte geben Sie die $t(lockRoomPassword) zu verbinden.",
         "passwordNotSupported": "Das Festlegen von einem $t(lockRoomPassword) für das Meeting wird nicht unterstützt.",
         "passwordNotSupportedTitle": "$t(lockRoomPasswordUppercase) nicht unterstützt",
         "passwordRequired": "$t(lockRoomPasswordUppercase) erforderlich",
@@ -334,15 +320,15 @@
         "dialInTollFree": "Gebührenfrei",
         "genericError": "Es ist leider etwas schiefgegangen.",
         "inviteLiveStream": "Klicken Sie auf {{url}}, um den Livestream dieser Konferenz zu öffnen",
-        "invitePhone": "Wenn Sie stattdessen per Telefon beitreten möchten, wählen sie: {{number}},,{{conferenceID}}#\n",
-        "invitePhoneAlternatives": "Suchen Sie nach einer anderen Einwahlnummer ?\nMeeting-Einwahlnummern anzeigen: {{url}}\n\n\nWenn Sie sich auch über ein Raumtelefon einwählen, nehmen Sie teil, ohne sich mit dem Ton zu verbinden: {{silentUrl}}",
+        "invitePhone": "Wenn Sie stattdessen per Telefon beitreten möchten, tippen Sie hier: {{number}},,{{conferenceID}}#\n",
+        "invitePhoneAlternatives": "Suche nach einer anderen Einwahlnummer?\nMeetings-Einwahlnummern sehen: {{url}}\n\n\nWenn Sie sich auch über ein Raumtelefon einwählen, nehmen Sie teil, ohne sich mit dem Ton zu verbinden: {{silentUrl}}",
         "inviteURLFirstPartGeneral": "Sie wurden zur Teilnahme an einem Meeting eingeladen.",
         "inviteURLFirstPartPersonal": "{{name}} lädt Sie zu einem Meeting ein.\n",
         "inviteURLSecondPart": "\nAm Meeting teilnehmen:\n{{url}}\n",
         "liveStreamURL": "Livestream:",
         "moreNumbers": "Weitere Telefonnummern",
         "noNumbers": "Keine Telefonnummern verfügbar.",
-        "noPassword": "Kein Passwort benötigt",
+        "noPassword": "Keines",
         "noRoom": "Keine Konferenz für die Einwahlinformationen angegeben.",
         "numbers": "Einwahlnummern",
         "password": "$t(lockRoomPasswordUppercase):",
@@ -373,7 +359,7 @@
         "mute": "Stummschaltung aktivieren oder deaktivieren",
         "pushToTalk": "Push-to-Talk (Sprechtaste)",
         "raiseHand": "Hand erheben",
-        "showSpeakerStats": "Sprecherstatistik anzeigen",
+        "showSpeakerStats": "Statistiken für Sprecher anzeigen",
         "toggleChat": "Chat öffnen oder schließen",
         "toggleFilmstrip": "Video-Miniaturansichten ein- oder ausblenden",
         "toggleScreensharing": "Zwischen Kamera und Bildschirmfreigabe wechseln",
@@ -530,11 +516,6 @@
     "sectionList": {
         "pullToRefresh": "Ziehen, um zu aktualisieren"
     },
-    "security": {
-        "about": "Sie können einen Passwort zu Ihrer Sitzung hinzufügen. Die Teilnehmer müssen dieses ebenfalls eingeben, bevor sie an der Sitzung teilnehmen dürfen",
-        "insecureRoomNameWarning": "Der Raumname ist unsicher. Unerwünschte Teilnehmer könnten Ihrer Konferenz beitreten",
-        "securityOptions": "Sicherheitsoptionen"
-    },
     "settings": {
         "calendar": {
             "about": "Die Kalenderintegration von {{appName}} wird verwendet, um ein sicheres Zugreifen auf Ihren Kalender und Auslesen der bevorstehenden Termine zu ermöglichen.",
@@ -589,8 +570,8 @@
         "minutes": "{{count}}m",
         "name": "Name",
         "seconds": "{{count}}s",
-        "speakerStats": "Sprecherstatistik",
-        "speakerTime": "Sprecherzeit"
+        "speakerStats": "Sprecher-Statistiken",
+        "speakerTime": "Sprecher-Zeit"
     },
     "startupoverlay": {
         "policyText": " ",
@@ -629,7 +610,6 @@
             "raiseHand": "„Melden“ ein-/ausschalten",
             "recording": "Aufzeichnung ein-/ausschalten",
             "remoteMute": "Teilnehmer stummschalten",
-            "security": "Sicherheitsoptionen",
             "Settings": "Einstellungen ein-/ausschalten",
             "sharedvideo": "YouTube-Videofreigabe ein-/ausschalten",
             "shareRoom": "Person einladen",
@@ -640,7 +620,8 @@
             "tileView": "Kachelansicht ein-/ausschalten",
             "toggleCamera": "Kamera wechseln",
             "videomute": "„Video stummschalten“ ein-/ausschalten",
-            "videoblur": "Video-Unschärfe ein-/ausschalten"
+            "videoblur": "Video-Unschärfe ein-/ausschalten",
+            "videobunnyears": "Hasenohren hinzufügen/entfernen"
         },
         "addPeople": "Teilnehmer zur Konferenz hinzufügen",
         "audioOnlyOff": "Modus „Nur Audio“ deaktivieren",
@@ -681,12 +662,11 @@
         "profile": "Profil bearbeiten",
         "raiseHand": "Hand erheben",
         "raiseYourHand": "Melden",
-        "security": "Sicherheitsoptionen",
         "Settings": "Einstellungen",
         "sharedvideo": "YouTube-Video teilen",
         "shareRoom": "Person einladen",
         "shortcuts": "Tastenkürzel anzeigen",
-        "speakerStats": "Sprecherstatistik",
+        "speakerStats": "Sprecher-Statistiken",
         "startScreenSharing": "Bildschirmfreigabe starten",
         "startSubtitles": "Untertitel einschalten",
         "stopScreenSharing": "Bildschirmfreigabe stoppen",
@@ -697,7 +677,9 @@
         "toggleCamera": "Kamera wechseln",
         "videomute": "Kamera starten / stoppen",
         "startvideoblur": "Hintergrundunschärfe aktivieren",
-        "stopvideoblur": "Hintergrundunschärfe deaktivieren"
+        "stopvideoblur": "Hintergrundunschärfe deaktivieren",
+        "startvideobunnyears": "Coole Hasenohren hinzufügen",
+        "stopvideobunnyears": "Hasenohren deaktivieren"
     },
     "transcribing": {
         "ccButtonTooltip": "Untertitel ein-/ausschalten",

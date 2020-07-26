@@ -574,6 +574,17 @@ export function createVideoBlurEvent(action) {
 }
 
 /**
+ * Creates an event indicating that an action related to the bunny 
+ * ears effect occured (e.g. it was started or stopped).
+ */
+ export function createVideoBunnyEarsEvent(action) {
+	return {
+		action,
+		actionSubject: 'video.bunny-ears'
+	};
+}
+
+/**
  * Creates an event indicating that an action related to screen sharing
  * occurred (e.g. It was started or stopped).
  *

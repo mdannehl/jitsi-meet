@@ -245,6 +245,19 @@ module.exports = [
         }),
         performance: getPerformanceHints(1 * 1024 * 1024)
     }),
+    
+    Object.assign({}, config, {
+        entry: {
+            'video-bunny-ears-effect': './react/features/stream-effects/bunny-ears/index.js'
+        },
+        output: Object.assign({}, config.output, {
+            library: [ 'JitsiMeetJS', 'app', 'effects' ],
+            libraryTarget: 'window',
+            filename: '[name].min.js',
+            sourceMapFilename: '[name].min.map'
+        }),
+        performance: getPerformanceHints(1 * 1024 * 1024)
+    }),
 
     Object.assign({}, config, {
         entry: {
