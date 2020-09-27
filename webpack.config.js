@@ -248,7 +248,7 @@ module.exports = [
     
     Object.assign({}, config, {
         entry: {
-            'video-bunny-ears-effect': './react/features/stream-effects/bunny-ears/index.js'
+            'video-effect-filters': './react/features/stream-effects/video-effect-filters/index.js'
         },
         output: Object.assign({}, config.output, {
             library: [ 'JitsiMeetJS', 'app', 'effects' ],

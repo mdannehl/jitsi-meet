@@ -189,7 +189,7 @@ var interfaceConfig = {
         'fodeviceselection', 'hangup', 'profile', 'chat', 'recording',
         'livestreaming', 'etherpad', 'sharedvideo', 'settings', 'raisehand',
         'videoquality', 'filmstrip', 'invite', 'feedback', 'stats', 'shortcuts',
-        'tileview', 'videobackgroundblur', 'videobunnyears', 'download', 'help', 'mute-everyone', 'security'
+        'tileview', 'videobackgroundblur', 'videoeffectfilters', 'download', 'help', 'mute-everyone', 'security'
     ],
 
     TOOLBAR_TIMEOUT: 4000,

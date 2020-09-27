@@ -32,7 +32,10 @@ import { connect, equals } from '../../../base/redux';
 import { OverflowMenuItem } from '../../../base/toolbox';
 import { getLocalVideoTrack, toggleScreensharing } from '../../../base/tracks';
 import { VideoBlurButton } from '../../../blur';
-import { VideoBunnyEarsButton } from '../../../bunny-ears';
+import { 
+	VideEffectFiltersDialog, 
+	VideoEffectFiltersMenuButton
+} from '../../../video-effect-filters';
 import { ChatCounter, toggleChat } from '../../../chat';
 import { SharedDocumentButton } from '../../../etherpad';
 import { openFeedbackDialog } from '../../../feedback';
@@ -404,7 +407,7 @@ class Toolbox extends Component<Props, State> {
     _doOpenVideoQuality() {
         this.props.dispatch(openDialog(VideoQualityDialog));
     }
-
+    
     /**
      * Dispatches an action to toggle the display of chat.
      *
@@ -994,10 +997,10 @@ class Toolbox extends Component<Props, State> {
                 key = 'videobackgroundblur'
                 showLabel = { true }
                 visible = { this._shouldShowButton('videobackgroundblur') && !_screensharing } />,
-            <VideoBunnyEarsButton
-                key = 'videobunnyears'
+			 <VideoEffectFiltersMenuButton
+                key = 'videoeffectfilters'
                 showLabel = { true }
-                visible = { this._shouldShowButton('videobunnyears') && !_screensharing } />,
+                visible = { this._shouldShowButton('videoeffectfilters') } />,
             <SettingsButton
                 key = 'settings'
                 showLabel = { true }

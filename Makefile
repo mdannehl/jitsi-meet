@@ -49,8 +49,8 @@ deploy-appbundle:
 		$(BUILD_DIR)/analytics-ga.min.map \
 		$(BUILD_DIR)/video-blur-effect.min.js \
 		$(BUILD_DIR)/video-blur-effect.min.map \
-		$(BUILD_DIR)/video-bunny-ears-effect.min.js \
-		$(BUILD_DIR)/video-bunny-ears-effect.min.map \
+		$(BUILD_DIR)/video-effect-filters.min.js \
+		$(BUILD_DIR)/video-effect-filters.min.map \
 		$(BUILD_DIR)/rnnoise-processor.min.js \
 		$(BUILD_DIR)/rnnoise-processor.min.map \
 		$(DEPLOY_DIR)

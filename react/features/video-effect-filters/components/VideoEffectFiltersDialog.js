@@ -2,15 +2,15 @@ import React, { Component } from 'react';
 
 import { Dialog } from '../../base/dialog';
 
-import VideoQualitySlider from './VideoQualitySlider';
+import VideoEffectFilterChooser from './VideoEffectFilterChooser';
 
 /**
  * Implements a React {@link Component} which displays the component
- * {@code VideoQualitySlider} in a dialog.
+ * {@code VideoEffectFilterChooser} in a dialog.
  *
  * @extends Component
  */
-export default class VideoQualityDialog extends Component {
+export default class VideoEffectFiltersDialog extends Component {
     /**
      * Implements React's {@link Component#render()}.
      *
@@ -20,11 +20,11 @@ export default class VideoQualityDialog extends Component {
     render() {
         return (
             <Dialog
-                hideCancelButton = { false }
+                hideCancelButton = { true }
                 okKey = 'dialog.done'
-                titleKey = 'videoStatus.callQuality'
+                titleKey = 'videoStatus.effectFilter'
                 width = 'small'>
-             
+                <VideoEffectFilterChooser />
             </Dialog>
         );
     }

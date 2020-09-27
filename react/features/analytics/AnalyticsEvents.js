@@ -574,13 +574,13 @@ export function createVideoBlurEvent(action) {
 }
 
 /**
- * Creates an event indicating that an action related to the bunny 
- * ears effect occured (e.g. it was started or stopped).
+ * Creates an event indicating that an action related to the video 
+ * effect filters occured (e.g. started or stopped an effect filter).
  */
- export function createVideoBunnyEarsEvent(action) {
+ export function createVideoEffectFiltersEvent(action) {
 	return {
 		action,
-		actionSubject: 'video.bunny-ears'
+		actionSubject: 'video.effect-filters'
 	};
 }
 
