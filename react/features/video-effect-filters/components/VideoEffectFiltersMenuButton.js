@@ -11,7 +11,7 @@ import VideoEffectFiltersDialog from './VideoEffectFiltersDialog';
 import {
     AbstractButton,
     type AbstractButtonProps
-} from '../../base/toolbox';
+} from '../../base/toolbox/components';
 
 import { 
 	Icon,

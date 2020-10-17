@@ -1,10 +1,13 @@
 // @flow
 
+import * as StackBlur from 'stackblur-canvas';
+
 import * as bodyPix from '@tensorflow-models/body-pix';
+
 import {
-    CLEAR_INTERVAL,
-    INTERVAL_TIMEOUT,
-    SET_INTERVAL,
+    CLEAR_TIMEOUT,
+    TIMEOUT_TICK,
+    SET_TIMEOUT,
     timerWorkerScript
 } from './TimerWorker';
 
@@ -22,6 +25,7 @@ import {
 export default class JitsiStreamVideoEffectFilters {
     _bpModel: Object;
     _inputVideoElement: HTMLVideoElement;
+    _inputVideoCanvasElement: HTMLCanvasElement;
     _onMaskFrameTimer: Function;
     _maskFrameTimerWorker: Worker;
     _maskInProgress: boolean;
@@ -29,7 +33,6 @@ export default class JitsiStreamVideoEffectFilters {
     _outputCanvasElementContext : CanvasRenderingContext2D;
     _renderMask: Function;
     _segmentationData: Object;
-    _nextSegmentationDataReady: boolean;
     _selectedVideoEffectFilter: String;
     isEnabled: Function;
     startEffect: Function;
@@ -53,21 +56,15 @@ export default class JitsiStreamVideoEffectFilters {
         this._outputCanvasElement = document.createElement('canvas');
         this._outputCanvasElementContext = this._outputCanvasElement.getContext('2d');
         this._inputVideoElement = document.createElement('video');
-        this._nextSegmentationDataReady = true;
+        this._inputVideoCanvasElement = document.createElement('canvas');
+        this.setSelectedVideoEffectFilter.bind(this);
 
-        this._maskFrameTimerWorker = new Worker(timerWorkerScript, { name: 'Blur effect worker' });
-        this._maskFrameTimerWorker.onmessage = this._onMaskFrameTimer;
+        // this._maskFrameTimerWorker = new Worker(timerWorkerScript, { name: 'Blur effect worker' });
+        // this._maskFrameTimerWorker.onmessage = this._onMaskFrameTimer;
         
         // Video effect image to draw onto the real image
         this._effectImage = new Image();
-        switch (this._selectedVideoEffectFilter) {
-			case BUNNY_EARS_ENABLED:
-				this._effectImage.src = 'images/bunny_ears.png';
-				break;
-			case POI_FILTER_ENABLED:
-				this._effectImage.src = 'images/poi_effect.png';
-				break;
-		}
+        this.setSelectedVideoEffectFilter(effect);
         
     }
 
@@ -79,10 +76,10 @@ export default class JitsiStreamVideoEffectFilters {
      * @returns {void}
      */
     async _onMaskFrameTimer(response: Object) {
-        if (response.data.id === INTERVAL_TIMEOUT) {
-            if (!this._maskInProgress) {
+        if (response.data.id === TIMEOUT_TICK) {
+            //if (!this._maskInProgress) {
                 await this._renderMask();
-            }
+            //}
         }
     }
 
@@ -93,24 +90,112 @@ export default class JitsiStreamVideoEffectFilters {
      * @returns {void}
      */
     async _renderMask() {
-		console.log('Selected effect:');
-		console.log(this._selectedVideoEffectFilter);
+		//console.log('Selected effect:');
+		//console.log(this._selectedVideoEffectFilter);
 		
 		var t0 = performance.now();
-		
-        this._maskInProgress = false;//true;
         
-        if ( this._nextSegmentationDataReady ) { 
-			this._nextSegmentationDataReady = false;
-			this._bpModel.segmentPerson(this._inputVideoElement, {
-				internalResolution: 'medium', // resized to 0.5 times of the original resolution before inference
-				maxDetections: 1, // max. number of person poses to detect per image
-				segmentationThreshold: 0.7 // represents probability that a pixel belongs to a person
-			}).then( newSegmentationData => {
-				this._segmentationData = newSegmentationData;
-				this._nextSegmentationDataReady = true;
-			});
+        if (!this._maskInProgress) {
+			console.log('Calling a segmentation! ('+t0+')');
+            this._maskInProgress = true;
+            this._bpModel.segmentPerson(this._inputVideoElement, {
+                internalResolution: 'low', // resized to 0.5 times of the original resolution before inference
+                maxDetections: 1, // max. number of person poses to detect per image
+                segmentationThreshold: 0.7, // represents probability that a pixel belongs to a person
+                flipHorizontal: false,
+                scoreThreshold: 0.2
+            }).then(data => {
+                this._segmentationData = data;
+                this._maskInProgress = false;
+            });
+        } else {
+			console.log('No segmentation started! ('+t0+')');
 		}
+		
+		const inputCanvasCtx = this._inputVideoCanvasElement.getContext('2d');
+
+        inputCanvasCtx.drawImage(this._inputVideoElement, 0, 0);
+
+        const currentFrame = inputCanvasCtx.getImageData(
+            0,
+            0,
+            this._inputVideoCanvasElement.width,
+            this._inputVideoCanvasElement.height
+        );
+		
+		if (this._segmentationData) {
+            /**const blurData = new ImageData(currentFrame.data.slice(), currentFrame.width, currentFrame.height);
+
+            StackBlur.imageDataRGB(blurData, 0, 0, currentFrame.width, currentFrame.height, 12);
+
+            for (let x = 0; x < this._outputCanvasElement.width; x++) {
+                for (let y = 0; y < this._outputCanvasElement.height; y++) {
+                    const n = (y * this._outputCanvasElement.width) + x;
+
+                    if (this._segmentationData.data[n] === 0) {
+                        currentFrame.data[n * 4] = blurData.data[n * 4];
+                        currentFrame.data[(n * 4) + 1] = blurData.data[(n * 4) + 1];
+                        currentFrame.data[(n * 4) + 2] = blurData.data[(n * 4) + 2];
+                        currentFrame.data[(n * 4) + 3] = blurData.data[(n * 4) + 3];
+                    }
+                }
+            }
+            */
+            
+            // Draw raw input image on screen 
+            this._outputCanvasElementContext.drawImage(this._inputVideoElement, 0, 0); 
+            
+            // Video-effect-filter
+            if (this._segmentationData.allPoses[0]) {
+				
+				var xNose = this._segmentationData.allPoses[0].keypoints[0].position.x;
+				var yNose = this._segmentationData.allPoses[0].keypoints[0].position.y;
+				var yLeftEye = this._segmentationData.allPoses[0].keypoints[1].position.y;
+				var yRightEye = this._segmentationData.allPoses[0].keypoints[2].position.y;
+				var xLeftEar = this._segmentationData.allPoses[0].keypoints[3].position.x;
+				var xRightEar = this._segmentationData.allPoses[0].keypoints[4].position.x;
+				
+				var yDiffNoseEye = yNose - (Math.min(yLeftEye, yRightEye));
+				var xDiffEars = xRightEar - xLeftEar;
+				
+				var posY;
+				var scale;
+					
+				switch (this._selectedVideoEffectFilter) {
+					case BUNNY_EARS_ENABLED:
+						scale = 1;
+						posY = yNose - this._effectImage.height;
+						posY = posY - 2.5 * yDiffNoseEye;
+						break;
+					case POI_FILTER_ENABLED:
+						//scale = yDiffNoseEye
+						scale = xDiffEars * 1.5 / this._effectImage.width
+						posY = yNose - this._effectImage.height / 2 * scale;
+						posY = posY - 0.5 * yDiffNoseEye;
+						break;
+				}	
+				
+				var posX = xNose - (this._effectImage.width / 2) * scale; 
+				
+				//this._outputCanvasElement.getContext('2d').putImageData(currentFrame, 0, 0);
+				//this._outputCanvasElementContext.drawImage(this._effectImage, posX, posY);
+				 
+				// Draw effect image onto the raw image
+				this._outputCanvasElementContext.drawImage(this._effectImage, posX, posY, this._effectImage.width * scale, this._effectImage.height * scale);
+			}
+            
+        } else  {
+			// This will be called only before the first segmentation has taken place
+			this._outputCanvasElementContext.drawImage(this._inputVideoElement, 0, 0);
+		}
+        
+        this._maskFrameTimerWorker.postMessage({
+            id: SET_TIMEOUT,
+            timeMs: 1000 / 30
+        });
+		
+		/**
+		
 		
 		if ( this._segmentationData ) {
 		
@@ -150,6 +235,7 @@ export default class JitsiStreamVideoEffectFilters {
 					posY = posY - 0.5 * yDiffNoseEye;
 					break;
 			}	
+
 			
 			this._outputCanvasElementContext.drawImage(this._effectImage, posX, posY); 
 		
@@ -165,9 +251,61 @@ export default class JitsiStreamVideoEffectFilters {
 			* */
 			
 
-			var t1 = performance.now();
-			console.log("Rendering took " + (t1 - t0) + " milliseconds.");
-			}
+		var t1 = performance.now();
+		console.log('Rendering took ' + (t1 - t0) + ' milliseconds. ('+t0+')');
+		//}
+		
+			
+		// the guy
+		/**
+		if (!this._maskInProgress) {
+            this._maskInProgress = true;
+            this._bpModel.segmentPerson(this._inputVideoElement, {
+                internalResolution: 'low', // resized to 0.5 times of the original resolution before inference
+                maxDetections: 1, // max. number of person poses to detect per image
+                segmentationThreshold: 0.7, // represents probability that a pixel belongs to a person
+                flipHorizontal: false,
+                scoreThreshold: 0.2
+            }).then(data => {
+                this._segmentationData = data;
+                this._maskInProgress = false;
+            });
+        }
+        const inputCanvasCtx = this._inputVideoCanvasElement.getContext('2d');
+
+        inputCanvasCtx.drawImage(this._inputVideoElement, 0, 0);
+
+        const currentFrame = inputCanvasCtx.getImageData(
+            0,
+            0,
+            this._inputVideoCanvasElement.width,
+            this._inputVideoCanvasElement.height
+        );
+
+        if (this._segmentationData) {
+            const blurData = new ImageData(currentFrame.data.slice(), currentFrame.width, currentFrame.height);
+
+            StackBlur.imageDataRGB(blurData, 0, 0, currentFrame.width, currentFrame.height, 12);
+
+            for (let x = 0; x < this._outputCanvasElement.width; x++) {
+                for (let y = 0; y < this._outputCanvasElement.height; y++) {
+                    const n = (y * this._outputCanvasElement.width) + x;
+
+                    if (this._segmentationData.data[n] === 0) {
+                        currentFrame.data[n * 4] = blurData.data[n * 4];
+                        currentFrame.data[(n * 4) + 1] = blurData.data[(n * 4) + 1];
+                        currentFrame.data[(n * 4) + 2] = blurData.data[(n * 4) + 2];
+                        currentFrame.data[(n * 4) + 3] = blurData.data[(n * 4) + 3];
+                    }
+                }
+            }
+        }
+        this._outputCanvasElement.getContext('2d').putImageData(currentFrame, 0, 0);
+        this._maskFrameTimerWorker.postMessage({
+            id: SET_TIMEOUT,
+            timeMs: 1000 / 30
+        });
+        * **/
     }
 
     /**
@@ -188,20 +326,25 @@ export default class JitsiStreamVideoEffectFilters {
      * @returns {MediaStream} - The stream with the applied effect.
      */
     startEffect(stream: MediaStream) {
+		this._maskFrameTimerWorker = new Worker(timerWorkerScript, { name: 'Blur effect worker' });
+        this._maskFrameTimerWorker.onmessage = this._onMaskFrameTimer;
+        
         const firstVideoTrack = stream.getVideoTracks()[0];
         const { height, frameRate, width }
             = firstVideoTrack.getSettings ? firstVideoTrack.getSettings() : firstVideoTrack.getConstraints();
 
         this._outputCanvasElement.width = parseInt(width, 10);
         this._outputCanvasElement.height = parseInt(height, 10);
+        
+        
         this._inputVideoElement.width = parseInt(width, 10);
         this._inputVideoElement.height = parseInt(height, 10);
         this._inputVideoElement.autoplay = true;
         this._inputVideoElement.srcObject = stream;
         this._inputVideoElement.onloadeddata = () => {
             this._maskFrameTimerWorker.postMessage({
-                id: SET_INTERVAL,
-                timeMs: 1000 / parseInt(frameRate, 10)
+                id: SET_TIMEOUT,
+                timeMs: 1000 / 30
             });
         };
 
@@ -213,9 +356,29 @@ export default class JitsiStreamVideoEffectFilters {
      *
      * @returns {void}
      */
-    stopEffect() {
-        this._maskFrameTimerWorker.postMessage({
-            id: CLEAR_INTERVAL
+	stopEffect() {
+		this._maskFrameTimerWorker.postMessage({
+            id: CLEAR_TIMEOUT
         });
-    }
+
+		this._maskFrameTimerWorker.terminate();
+	}
+	
+	/**
+	* Switches the effect of this instance.
+	* 
+	* @returns {void}
+	*/ 
+	setSelectedVideoEffectFilter(selectedVideoEffectFilter) {
+		this._selectedVideoEffectFilter = selectedVideoEffectFilter;
+		switch (this._selectedVideoEffectFilter) {
+			case BUNNY_EARS_ENABLED:
+				this._effectImage.src = 'images/bunny_ears.png';
+				break;
+			case POI_FILTER_ENABLED:
+				this._effectImage.src = 'images/poi_effect.png';
+				break;
+		}
+		console.log('Switched effect to: ' + selectedVideoEffectFilter + '-----------------------------------------------------')
+	}
 }

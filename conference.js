@@ -110,7 +110,6 @@ import {
 } from './react/features/base/util';
 import { showDesktopPicker } from './react/features/desktop-picker';
 import { appendSuffix } from './react/features/display-name';
-import { setE2EEKey } from './react/features/e2ee';
 import {
     maybeOpenFeedbackDialog,
     submitFeedback
@@ -121,7 +120,8 @@ import { suspendDetected } from './react/features/power-monitor';
 import {
     initPrejoin,
     isPrejoinPageEnabled,
-    isPrejoinPageVisible
+    isPrejoinPageVisible,
+    makePrecallTest
 } from './react/features/prejoin';
 import { createRnnoiseProcessorPromise } from './react/features/rnnoise';
 import { toggleScreenshotCaptureEffect } from './react/features/screenshot-capture';
@@ -745,8 +745,6 @@ export default {
 
         this.roomName = roomName;
 
-        window.addEventListener('hashchange', this.onHashChange.bind(this), false);
-
         try {
             // Initialize the device list first. This way, when creating tracks
             // based on preferred devices, loose label matching can be done in
@@ -759,7 +757,15 @@ export default {
         }
 
         if (isPrejoinPageEnabled(APP.store.getState())) {
-            _connectionPromise = connect(roomName);
+            _connectionPromise = connect(roomName).then(c => {
+                // we want to initialize it early, in case of errors to be able
+                // to gather logs
+                APP.connection = c;
+
+                return c;
+            });
+
+            APP.store.dispatch(makePrecallTest(this._getConferenceOptions()));
 
             const { tryCreateLocalTracks, errors } = this.createInitialLocalTracks(initialOptions);
             const tracks = await tryCreateLocalTracks;
@@ -1206,10 +1212,6 @@ export default {
 
     // end used by torture
 
-    getLogs() {
-        return room.getLogs();
-    },
-
     /**
      * Download logs, a function that can be called from console while
      * debugging.
@@ -1218,7 +1220,7 @@ export default {
     saveLogs(filename = 'meetlog.json') {
         // this can be called from console and will not have reference to this
         // that's why we reference the global var
-        const logs = APP.conference.getLogs();
+        const logs = APP.connection.getLogs();
         const data = encodeURIComponent(JSON.stringify(logs, null, '  '));
 
         const elem = document.createElement('a');
@@ -1232,34 +1234,6 @@ export default {
             bubbles: true,
             cancelable: false
         }));
-    },
-
-    /**
-     * Handled location hash change events.
-     */
-    onHashChange() {
-        const items = {};
-        const parts = window.location.hash.substr(1).split('&');
-
-        for (const part of parts) {
-            const param = part.split('=');
-            const key = param[0];
-
-            if (!key) {
-                continue; // eslint-disable-line no-continue
-            }
-
-            items[key] = param[1];
-        }
-
-        if (typeof items.e2eekey !== 'undefined') {
-            APP.store.dispatch(setE2EEKey(items.e2eekey));
-
-            // Clean URL in browser history.
-            const cleanUrl = window.location.href.split('#')[0];
-
-            history.replaceState(history.state, document.title, cleanUrl);
-        }
     },
 
     /**
@@ -1588,10 +1562,6 @@ export default {
         if (didHaveVideo) {
             promise = promise.then(() => createLocalTracksF({ devices: [ 'video' ] }))
                 .then(([ stream ]) => this.useVideoStream(stream))
-                .then(() => {
-                    sendAnalytics(createScreenSharingEvent('stopped'));
-                    logger.log('Screen sharing stopped.');
-                })
                 .catch(error => {
                     logger.error('failed to switch back to local video', error);
 
@@ -1608,6 +1578,8 @@ export default {
         return promise.then(
             () => {
                 this.videoSwitchInProgress = false;
+                sendAnalytics(createScreenSharingEvent('stopped'));
+                logger.info('Screen sharing stopped.');
             },
             error => {
                 this.videoSwitchInProgress = false;
@@ -2858,7 +2830,14 @@ export default {
             this._room = undefined;
             room = undefined;
 
-            APP.API.notifyReadyToClose();
+            /**
+             * Don't call {@code notifyReadyToClose} if the promotional page flag is set
+             * and let the page take care of sending the message, since there will be
+             * a redirect to the page regardlessly.
+             */
+            if (!interfaceConfig.SHOW_PROMOTIONAL_CLOSE_PAGE) {
+                APP.API.notifyReadyToClose();
+            }
             APP.store.dispatch(maybeRedirectToWelcomePage(values[0]));
         });
     },

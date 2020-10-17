@@ -140,7 +140,11 @@ const config = {
         // Allow the use of the real filename of the module being executed. By
         // default Webpack does not leak path-related information and provides a
         // value that is a mock (/index.js).
-        __filename: true
+        __filename: true,
+
+        // Provide some empty Node modules (required by olm).
+        crypto: 'empty',
+        fs: 'empty'
     },
     optimization: {
         concatenateModules: minimize,
@@ -224,6 +228,12 @@ module.exports = [
             'analytics-ga': './react/features/analytics/handlers/GoogleAnalyticsHandler.js'
         },
         performance: getPerformanceHints(5 * 1024)
+    }),
+    Object.assign({}, config, {
+        entry: {
+            'close3': './static/close3.js'
+        },
+        performance: getPerformanceHints(128 * 1024)
     }),
 
     // Because both video-blur-effect and rnnoise-processor modules are loaded
