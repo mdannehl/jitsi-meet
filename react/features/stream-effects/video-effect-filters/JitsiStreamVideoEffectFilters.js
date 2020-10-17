@@ -156,24 +156,27 @@ export default class JitsiStreamVideoEffectFilters {
 				var xRightEar = this._segmentationData.allPoses[0].keypoints[4].position.x;
 				
 				var yDiffNoseEye = yNose - (Math.min(yLeftEye, yRightEye));
-				var xDiffEars = xRightEar - xLeftEar;
+				var xDiffEars = Math.abs(xRightEar - xLeftEar);
 				
 				var posY;
 				var scale;
 					
 				switch (this._selectedVideoEffectFilter) {
 					case BUNNY_EARS_ENABLED:
-						scale = 1;
-						posY = yNose - this._effectImage.height;
-						posY = posY - 2.5 * yDiffNoseEye;
+						scale = xDiffEars * 1.9 / this._effectImage.height;
+						posY = yNose - this._effectImage.height * scale;
+						//console.log('posY First: '+posY+ '  scale: '+scale+ ' effImgHeight: ' + this._effectImage.height+ '  xDiffEars: '+xDiffEars);
+						posY = posY - 2.4 * yDiffNoseEye;
+						//console.log('posY Second: '+posY+'   müsste sein mind.: '+ (yNose - this._effectImage.height));
 						break;
 					case POI_FILTER_ENABLED:
-						//scale = yDiffNoseEye
-						scale = xDiffEars * 1.5 / this._effectImage.width
+						scale = xDiffEars * 1.5 / this._effectImage.width;
 						posY = yNose - this._effectImage.height / 2 * scale;
 						posY = posY - 0.5 * yDiffNoseEye;
 						break;
 				}	
+				
+				
 				
 				var posX = xNose - (this._effectImage.width / 2) * scale; 
 				
