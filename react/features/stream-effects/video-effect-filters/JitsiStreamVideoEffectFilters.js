@@ -27,7 +27,7 @@ import {
  * This class does the processing of the original video stream.
  */
 export default class JitsiStreamVideoEffectFilters {
-    _bpModel: Object;
+//    _bpModel: Object;
     _inputVideoElement: HTMLVideoElement;
     _inputVideoCanvasElement: HTMLCanvasElement;
     _onMaskFrameTimer: Function;
@@ -42,7 +42,7 @@ export default class JitsiStreamVideoEffectFilters {
     startEffect: Function;
     stopEffect: Function;
     _segmentationWorker: Worker;
-    _doSegmentation: Function;
+    _workerBpModelInitialized : boolean;
     
 
     /**
@@ -51,8 +51,9 @@ export default class JitsiStreamVideoEffectFilters {
      * @class
      * @param {BodyPix} bpModel - BodyPix model.
      */
-    constructor(bpModel: Object, effect) {
-        this._bpModel = bpModel;
+    constructor(effect) {//bpModel: Object, effect) {
+   //     this._bpModel = bpModel;
+        
         this._selectedVideoEffectFilter = effect;
 
         // Bind event handler so it is only bound once for every instance.
@@ -72,7 +73,7 @@ export default class JitsiStreamVideoEffectFilters {
         this._effectImage = new Image();
         this.setSelectedVideoEffectFilter(effect);
         
-        //this._doSegmentation.bind(this);
+        this._workerBpModelInitialized = false;
         
     }
 
@@ -89,27 +90,9 @@ export default class JitsiStreamVideoEffectFilters {
             //if (!this._maskInProgress) {
 				this._renderMask();
             //}
-            if (!this._maskInProgress) {
-				this._doSegmentation();
-			}
         }
     }
     
-    async _doSegmentation() {
-		this._maskInProgress = true;
-		//console.log('Calling a segmentation! ('+performance.now()+')');
-		this._bpModel.segmentPerson(this._inputVideoElement, {
-			internalResolution: 'low', // resized to 0.5 times of the original resolution before inference
-			maxDetections: 1, // max. number of person poses to detect per image
-			segmentationThreshold: 0.7, // represents probability that a pixel belongs to a person
-			flipHorizontal: false,
-			scoreThreshold: 0.2
-		}).then(data => {
-			this._segmentationData = data;
-			this._maskInProgress = false;
-		});
-            
-	}
 
 	/**
      * Loop function to render the background mask.
@@ -142,28 +125,40 @@ export default class JitsiStreamVideoEffectFilters {
 		}
 		*/
 		
-		/** MY WORKER
-		if (!this._maskInProgress) {
-			this._maskInProgress = true;
-			this._segmentationWorker.postMessage({
-				id: SEGMENT_PERSON,
-				inputVideoElement: this._inputVideoElement
-			});	
-			console.log('Main thread posted: SEGMENT_PERSON');
-		}
-		*/
-		
-		
-		const inputCanvasCtx = this._inputVideoCanvasElement.getContext('2d');
+		//const inputCanvasCtx = this._inputVideoCanvasElement.getContext('2d');
 
-        inputCanvasCtx.drawImage(this._inputVideoElement, 0, 0);
+        //inputCanvasCtx.drawImage(this._inputVideoElement, 0, 0);
 
+/**
         const currentFrame = inputCanvasCtx.getImageData(
             0,
             0,
             this._inputVideoCanvasElement.width,
             this._inputVideoCanvasElement.height
-        );
+        );*/
+        
+        // Draw raw input image on screen 
+        this._outputCanvasElementContext.drawImage(this._inputVideoElement, 0, 0); 
+        
+        const currentFrame = this._outputCanvasElementContext.getImageData(
+			0,
+			0,
+			this._inputVideoElement.width,
+			this._inputVideoElement.height
+		);
+        
+        if (!this._maskInProgress && this._workerBpModelInitialized) {
+			//console.log("Sending:");
+			//console.log(currentFrame);
+			//console.log(".");
+			this._maskInProgress = true;
+			this._segmentationWorker.postMessage({
+				id: SEGMENT_PERSON,
+				inputVideoElement: currentFrame
+			});	
+		}
+		
+		
 		
 		if (this._segmentationData) {
             /**const blurData = new ImageData(currentFrame.data.slice(), currentFrame.width, currentFrame.height);
@@ -184,8 +179,9 @@ export default class JitsiStreamVideoEffectFilters {
             }
             */
             
-            // Draw raw input image on screen 
+           /** // Draw raw input image on screen 
             this._outputCanvasElementContext.drawImage(this._inputVideoElement, 0, 0); 
+            */
             
             // Video-effect-filter
             if (this._segmentationData.allPoses[0]) {
@@ -231,7 +227,7 @@ export default class JitsiStreamVideoEffectFilters {
             
         } else  {
 			// This will be called only before the first segmentation has taken place
-			this._outputCanvasElementContext.drawImage(this._inputVideoElement, 0, 0);
+			//this._outputCanvasElementContext.drawImage(this._inputVideoElement, 0, 0);
 		}
         
         this._maskFrameTimerWorker.postMessage({
@@ -371,7 +367,7 @@ export default class JitsiStreamVideoEffectFilters {
      * @returns {MediaStream} - The stream with the applied effect.
      */
     startEffect(stream: MediaStream) {
-		this._maskFrameTimerWorker = new Worker(timerWorkerScript, { name: 'Blur effect worker' });
+		this._maskFrameTimerWorker = new Worker(timerWorkerScript, { name: 'Video effect filter timer worker' });
         this._maskFrameTimerWorker.onmessage = this._onMaskFrameTimer;
         
         const firstVideoTrack = stream.getVideoTracks()[0];
@@ -393,22 +389,34 @@ export default class JitsiStreamVideoEffectFilters {
             });
         };
         
-        /**
-        this._segmentationWorker =  new Worker(segmentationWorkerScript, { name: 'Video effect filter segmentation worker', type: 'module' });
+        
+        this._segmentationWorker =  new Worker(segmentationWorkerScript, { name: 'Video effect filter segmentation worker'});
         console.log('Initialized worker');
-        this._segmentationWorker.onmessage = function(resultEvent) {
-			console.log('Main thread received worker result: '+resultEvent.data);
-		}
-        
-        
-        console.log('Worker posting:  startEffect() ');
-        this._segmentationWorker.postMessage({
-            id: SET_BP_MODEL,
-            bpModel: this._bpModel
-        });
-        this._segmentationWorker.postMessage('Lets go my worker friend!');
-		*/
+        this._segmentationWorker.onmessage = function(result) {
+			//console.log('Main thread received worker result: ');
+			switch(result.data.id) {
+				case SET_BP_MODEL: {		
+					this._workerBpModelInitialized = result.data.isInitialized;
+					break;
+				}
+				case SEGMENT_PERSON: {
+					this._segmentationData = result.data.segmentationData;
+					this._maskInProgress = false;
+					break;
+				}
+				default: {
+					console.log('Unknown request / result id!');
+					break;
+				}
+			}
+			
+		}.bind(this);
 
+        console.log('Main thread posting: Worker load the bpModel!');
+        this._segmentationWorker.postMessage({
+            id: SET_BP_MODEL
+        });
+     
         return this._outputCanvasElement.captureStream(parseInt(frameRate, 10));
     }
 
@@ -440,6 +448,7 @@ export default class JitsiStreamVideoEffectFilters {
 				this._effectImage.src = 'images/poi_effect.png';
 				break;
 		}
+		this._workerBpModelInitialized = false;
 		console.log('Switched effect to: ' + selectedVideoEffectFilter + '-----------------------------------------------------')
 	}
 }

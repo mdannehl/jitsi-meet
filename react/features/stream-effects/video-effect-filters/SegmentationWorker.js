@@ -40,31 +40,56 @@ const code = `
     
     onmessage = function(request) {
     
-		console.log('Worker received request: '+request.data.id)
-		console.log(request.data);
+		//console.log('Worker received request: '+request.data.id)
+		//console.log(request.data);
     
 		switch (request.data.id) {
 			case ${SET_BP_MODEL}: {		
 			
-				bpModel = request.data.bpModel;
-				postMessage('Initialized bpModel!');
-
+				importScripts("https://cdn.jsdelivr.net/npm/@tensorflow/tfjs");
+				importScripts("https://cdn.jsdelivr.net/npm/@tensorflow-models/body-pix");
+				console.log("Creating bpModel!");
+				bodyPix.load({
+					architecture: 'MobileNetV1',
+					outputStride: 16,
+					multiplier: 0.50,
+					quantBytes: 2
+				}).then(loadedModel => {
+					bpModel = loadedModel;
+					postMessage({
+						id: ${SET_BP_MODEL},
+						isInitialized: true 
+					});
+				});
+				
 				break;
 			}
 			case ${SEGMENT_PERSON}: {
-				
-				bpModel.segmentPerson(request.data.inputVideoElement, {
-					internalResolution: 'low', // resized to 0.5 times of the original resolution before inference
-					maxDetections: 1, // max. number of person poses to detect per image
-					segmentationThreshold: 0.7, // represents probability that a pixel belongs to a person
-					flipHorizontal: false,
-					scoreThreshold: 0.2
-				}).then(data => {
-					postMessage({
-						segmentationData: data
-					});
-				});
 			
+				//console.debug("Received:");
+				//console.debug(request.data.inputVideoElement.width);
+				//console.debug("---");
+			
+				if (bpModel) {
+				
+					bpModel.segmentPerson(request.data.inputVideoElement, {
+						internalResolution: 'low', // resized to 0.5 times of the original resolution before inference
+						maxDetections: 1, // max. number of person poses to detect per image
+						segmentationThreshold: 0.7, // represents probability that a pixel belongs to a person
+						flipHorizontal: false,
+						scoreThreshold: 0.2
+					}).then(data => {
+						postMessage({
+							id: ${SEGMENT_PERSON},
+							segmentationData: data
+						});
+					});
+				} else {
+					console.log('The bpModel not yet initialized!');
+					postMessage({
+						segmentationData: null
+					});
+				}
 				break;
 			}
 			default: {
