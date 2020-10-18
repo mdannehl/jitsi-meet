@@ -2,14 +2,18 @@
 
 import * as StackBlur from 'stackblur-canvas';
 
-import * as bodyPix from '@tensorflow-models/body-pix';
-
 import {
     CLEAR_TIMEOUT,
     TIMEOUT_TICK,
     SET_TIMEOUT,
     timerWorkerScript
 } from './TimerWorker';
+
+import {
+	SET_BP_MODEL,
+	SEGMENT_PERSON,
+	segmentationWorkerScript
+} from './SegmentationWorker';
 
 import {
 	BUNNY_EARS_ENABLED,
@@ -37,6 +41,8 @@ export default class JitsiStreamVideoEffectFilters {
     isEnabled: Function;
     startEffect: Function;
     stopEffect: Function;
+    _segmentationWorker: Worker;
+    _doSegmentation: Function;
     
 
     /**
@@ -66,6 +72,8 @@ export default class JitsiStreamVideoEffectFilters {
         this._effectImage = new Image();
         this.setSelectedVideoEffectFilter(effect);
         
+        //this._doSegmentation.bind(this);
+        
     }
 
     /**
@@ -75,26 +83,47 @@ export default class JitsiStreamVideoEffectFilters {
      * @param {EventHandler} response - The onmessage EventHandler parameter.
      * @returns {void}
      */
-    async _onMaskFrameTimer(response: Object) {
+	_onMaskFrameTimer(response: Object) {
+		//console.log('_onMaskFrameTimer: '+performance.now());
         if (response.data.id === TIMEOUT_TICK) {
             //if (!this._maskInProgress) {
-                await this._renderMask();
+				this._renderMask();
             //}
+            if (!this._maskInProgress) {
+				this._doSegmentation();
+			}
         }
     }
+    
+    async _doSegmentation() {
+		this._maskInProgress = true;
+		//console.log('Calling a segmentation! ('+performance.now()+')');
+		this._bpModel.segmentPerson(this._inputVideoElement, {
+			internalResolution: 'low', // resized to 0.5 times of the original resolution before inference
+			maxDetections: 1, // max. number of person poses to detect per image
+			segmentationThreshold: 0.7, // represents probability that a pixel belongs to a person
+			flipHorizontal: false,
+			scoreThreshold: 0.2
+		}).then(data => {
+			this._segmentationData = data;
+			this._maskInProgress = false;
+		});
+            
+	}
 
-    /**
+	/**
      * Loop function to render the background mask.
      *
      * @private
      * @returns {void}
-     */
-    async _renderMask() {
+	 */
+	_renderMask() {
 		//console.log('Selected effect:');
 		//console.log(this._selectedVideoEffectFilter);
 		
 		var t0 = performance.now();
         
+        /**
         if (!this._maskInProgress) {
 			console.log('Calling a segmentation! ('+t0+')');
             this._maskInProgress = true;
@@ -111,6 +140,19 @@ export default class JitsiStreamVideoEffectFilters {
         } else {
 			console.log('No segmentation started! ('+t0+')');
 		}
+		*/
+		
+		/** MY WORKER
+		if (!this._maskInProgress) {
+			this._maskInProgress = true;
+			this._segmentationWorker.postMessage({
+				id: SEGMENT_PERSON,
+				inputVideoElement: this._inputVideoElement
+			});	
+			console.log('Main thread posted: SEGMENT_PERSON');
+		}
+		*/
+		
 		
 		const inputCanvasCtx = this._inputVideoCanvasElement.getContext('2d');
 
@@ -255,7 +297,7 @@ export default class JitsiStreamVideoEffectFilters {
 			
 
 		var t1 = performance.now();
-		console.log('Rendering took ' + (t1 - t0) + ' milliseconds. ('+t0+')');
+		//console.log('Rendering took ' + (t1 - t0) + ' milliseconds. ('+t0+')');
 		//}
 		
 			
@@ -350,6 +392,22 @@ export default class JitsiStreamVideoEffectFilters {
                 timeMs: 1000 / 30
             });
         };
+        
+        /**
+        this._segmentationWorker =  new Worker(segmentationWorkerScript, { name: 'Video effect filter segmentation worker', type: 'module' });
+        console.log('Initialized worker');
+        this._segmentationWorker.onmessage = function(resultEvent) {
+			console.log('Main thread received worker result: '+resultEvent.data);
+		}
+        
+        
+        console.log('Worker posting:  startEffect() ');
+        this._segmentationWorker.postMessage({
+            id: SET_BP_MODEL,
+            bpModel: this._bpModel
+        });
+        this._segmentationWorker.postMessage('Lets go my worker friend!');
+		*/
 
         return this._outputCanvasElement.captureStream(parseInt(frameRate, 10));
     }
