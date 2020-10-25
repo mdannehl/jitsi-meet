@@ -5,9 +5,12 @@ import { translate } from '../../base/i18n';
 import { connect } from '../../base/redux';
 
 import {
-	BUNNY_EARS_ENABLED,
-	POI_FILTER_ENABLED,
-	VIDEO_EFFECT_FILTERS_DISABLED
+	BLUR_ENABLED,
+	BUNNY_EARS_ENABLED, 
+	POI_FILTER_GREY_ENABLED,
+	POI_FILTER_RED_ENABLED,
+	POI_FILTER_YELLOW_ENABLED,
+	VIDEO_EFFECT_FILTERS_DISABLED 
 } from '../actionTypes';
 
 import { setVideoEffectFilter } from '../actions';
@@ -80,11 +83,35 @@ class VideoEffectFilterChooser extends Component<Props> {
 					</label><br/>
 					<label className="video-effect-filters-label">
 						<input type="radio" className="video-effect-filters-radio"
-							value = {POI_FILTER_ENABLED}
-							checked = {_selectedVideoEffectFilter === POI_FILTER_ENABLED}
+							value = {POI_FILTER_GREY_ENABLED}
+							checked = {_selectedVideoEffectFilter === POI_FILTER_GREY_ENABLED}
 							onChange = {this.onRadioValueChange}
 						/>
-						Person of Interest
+						Person of Interest - Grey
+					</label><br/>
+					<label className="video-effect-filters-label">
+						<input type="radio" className="video-effect-filters-radio"
+							value = {POI_FILTER_RED_ENABLED}
+							checked = {_selectedVideoEffectFilter === POI_FILTER_RED_ENABLED}
+							onChange = {this.onRadioValueChange}
+						/>
+						Person of Interest - Red
+					</label><br/>
+					<label className="video-effect-filters-label">
+						<input type="radio" className="video-effect-filters-radio"
+							value = {POI_FILTER_YELLOW_ENABLED}
+							checked = {_selectedVideoEffectFilter === POI_FILTER_YELLOW_ENABLED}
+							onChange = {this.onRadioValueChange}
+						/>
+						Person of Interest - Yellow
+					</label><br/>
+					<label className="video-effect-filters-label">
+						<input type="radio" className="video-effect-filters-radio"
+							value = {BLUR_ENABLED}
+							checked = {_selectedVideoEffectFilter === BLUR_ENABLED}
+							onChange = {this.onRadioValueChange}
+						/>
+						Background blur
 					</label><br/>
 					<label className="video-effect-filters-label">
 						<input type="radio" className="video-effect-filters-radio"

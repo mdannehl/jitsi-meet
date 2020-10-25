@@ -16,9 +16,12 @@ import {
 } from './SegmentationWorker';
 
 import {
-	BUNNY_EARS_ENABLED,
-	POI_FILTER_ENABLED,
-	VIDEO_EFFECT_FILTERS_DISABLED
+	BLUR_ENABLED,
+	BUNNY_EARS_ENABLED, 
+	POI_FILTER_GREY_ENABLED,
+	POI_FILTER_RED_ENABLED,
+	POI_FILTER_YELLOW_ENABLED,
+	VIDEO_EFFECT_FILTERS_DISABLED 
 } from '../../video-effect-filters/actionTypes';
 
 /**
@@ -140,21 +143,9 @@ export default class JitsiStreamVideoEffectFilters {
         } else {
 			console.log('No segmentation started! ('+t0+')');
 		}
-		*/
+		*/		
 		
-		/** MY WORKER
-		if (!this._maskInProgress) {
-			this._maskInProgress = true;
-			this._segmentationWorker.postMessage({
-				id: SEGMENT_PERSON,
-				inputVideoElement: this._inputVideoElement
-			});	
-			console.log('Main thread posted: SEGMENT_PERSON');
-		}
-		*/
-		
-		
-		const inputCanvasCtx = this._inputVideoCanvasElement.getContext('2d');
+		 const inputCanvasCtx = this._inputVideoCanvasElement.getContext('2d');
 
         inputCanvasCtx.drawImage(this._inputVideoElement, 0, 0);
 
@@ -166,67 +157,76 @@ export default class JitsiStreamVideoEffectFilters {
         );
 		
 		if (this._segmentationData) {
-            /**const blurData = new ImageData(currentFrame.data.slice(), currentFrame.width, currentFrame.height);
-
-            StackBlur.imageDataRGB(blurData, 0, 0, currentFrame.width, currentFrame.height, 12);
-
-            for (let x = 0; x < this._outputCanvasElement.width; x++) {
-                for (let y = 0; y < this._outputCanvasElement.height; y++) {
-                    const n = (y * this._outputCanvasElement.width) + x;
-
-                    if (this._segmentationData.data[n] === 0) {
-                        currentFrame.data[n * 4] = blurData.data[n * 4];
-                        currentFrame.data[(n * 4) + 1] = blurData.data[(n * 4) + 1];
-                        currentFrame.data[(n * 4) + 2] = blurData.data[(n * 4) + 2];
-                        currentFrame.data[(n * 4) + 3] = blurData.data[(n * 4) + 3];
-                    }
-                }
-            }
-            */
             
-            // Draw raw input image on screen 
-            this._outputCanvasElementContext.drawImage(this._inputVideoElement, 0, 0); 
-            
-            // Video-effect-filter
-            if (this._segmentationData.allPoses[0]) {
+            if (this._selectedVideoEffectFilter == BLUR_ENABLED) {
+				// blur effect
 				
-				var xNose = this._segmentationData.allPoses[0].keypoints[0].position.x;
-				var yNose = this._segmentationData.allPoses[0].keypoints[0].position.y;
-				var yLeftEye = this._segmentationData.allPoses[0].keypoints[1].position.y;
-				var yRightEye = this._segmentationData.allPoses[0].keypoints[2].position.y;
-				var xLeftEar = this._segmentationData.allPoses[0].keypoints[3].position.x;
-				var xRightEar = this._segmentationData.allPoses[0].keypoints[4].position.x;
+				const blurData = new ImageData(currentFrame.data.slice(), currentFrame.width, currentFrame.height);
+
+				StackBlur.imageDataRGB(blurData, 0, 0, currentFrame.width, currentFrame.height, 12);
+
+				for (let x = 0; x < this._outputCanvasElement.width; x++) {
+					for (let y = 0; y < this._outputCanvasElement.height; y++) {
+						const n = (y * this._outputCanvasElement.width) + x;
+
+						if (this._segmentationData.data[n] === 0) {
+							currentFrame.data[n * 4] = blurData.data[n * 4];
+							currentFrame.data[(n * 4) + 1] = blurData.data[(n * 4) + 1];
+							currentFrame.data[(n * 4) + 2] = blurData.data[(n * 4) + 2];
+							currentFrame.data[(n * 4) + 3] = blurData.data[(n * 4) + 3];
+						}
+					}
+				}
 				
-				var yDiffNoseEye = yNose - (Math.min(yLeftEye, yRightEye));
-				var xDiffEars = Math.abs(xRightEar - xLeftEar);
+				this._outputCanvasElement.getContext('2d').putImageData(currentFrame, 0, 0);
 				
-				var posY;
-				var scale;
+			} else {
+				// Video-effect-filter (anything but blur effect)
+				
+				// First, draw raw input image on screen 
+				this._outputCanvasElementContext.drawImage(this._inputVideoElement, 0, 0); 
+				
+				// Only add an effect if a face has been identified 
+				if (this._segmentationData.allPoses[0]) {
 					
-				switch (this._selectedVideoEffectFilter) {
-					case BUNNY_EARS_ENABLED:
-						scale = xDiffEars * 1.9 / this._effectImage.height;
-						posY = yNose - this._effectImage.height * scale;
-						//console.log('posY First: '+posY+ '  scale: '+scale+ ' effImgHeight: ' + this._effectImage.height+ '  xDiffEars: '+xDiffEars);
-						posY = posY - 2.4 * yDiffNoseEye;
-						//console.log('posY Second: '+posY+'   müsste sein mind.: '+ (yNose - this._effectImage.height));
-						break;
-					case POI_FILTER_ENABLED:
-						scale = xDiffEars * 1.5 / this._effectImage.width;
-						posY = yNose - this._effectImage.height / 2 * scale;
-						posY = posY - 0.5 * yDiffNoseEye;
-						break;
-				}	
-				
-				
-				
-				var posX = xNose - (this._effectImage.width / 2) * scale; 
-				
-				//this._outputCanvasElement.getContext('2d').putImageData(currentFrame, 0, 0);
-				//this._outputCanvasElementContext.drawImage(this._effectImage, posX, posY);
-				 
-				// Draw effect image onto the raw image
-				this._outputCanvasElementContext.drawImage(this._effectImage, posX, posY, this._effectImage.width * scale, this._effectImage.height * scale);
+					var xNose = this._segmentationData.allPoses[0].keypoints[0].position.x;
+					var yNose = this._segmentationData.allPoses[0].keypoints[0].position.y;
+					var yLeftEye = this._segmentationData.allPoses[0].keypoints[1].position.y;
+					var yRightEye = this._segmentationData.allPoses[0].keypoints[2].position.y;
+					var xLeftEar = this._segmentationData.allPoses[0].keypoints[3].position.x;
+					var xRightEar = this._segmentationData.allPoses[0].keypoints[4].position.x;
+					
+					var yDiffNoseEye = yNose - (Math.min(yLeftEye, yRightEye));
+					var xDiffEars = Math.abs(xRightEar - xLeftEar);
+					
+					var posY;
+					var scale;
+						
+					switch (this._selectedVideoEffectFilter) {
+						case BUNNY_EARS_ENABLED:
+							scale = xDiffEars * 1.9 / this._effectImage.height;
+							posY = yNose - this._effectImage.height * scale;
+							//console.log('posY First: '+posY+ '  scale: '+scale+ ' effImgHeight: ' + this._effectImage.height+ '  xDiffEars: '+xDiffEars);
+							posY = posY - 2.4 * yDiffNoseEye;
+							//console.log('posY Second: '+posY+'   müsste sein mind.: '+ (yNose - this._effectImage.height));
+							break;
+						case POI_FILTER_GREY_ENABLED:
+						case POI_FILTER_RED_ENABLED:
+						case POI_FILTER_YELLOW_ENABLED:
+							scale = xDiffEars * 1.5 / this._effectImage.width;
+							posY = yNose - this._effectImage.height / 2 * scale;
+							posY = posY - 0.5 * yDiffNoseEye;
+							break;
+					}	
+					
+					var posX = xNose - (this._effectImage.width / 2) * scale; 
+					
+					//this._outputCanvasElement.getContext('2d').putImageData(currentFrame, 0, 0);
+					//this._outputCanvasElementContext.drawImage(this._effectImage, posX, posY);
+					 
+					// Draw effect image onto the raw image
+					this._outputCanvasElementContext.drawImage(this._effectImage, posX, posY, this._effectImage.width * scale, this._effectImage.height * scale);
+				}
 			}
             
         } else  {
@@ -380,7 +380,8 @@ export default class JitsiStreamVideoEffectFilters {
 
         this._outputCanvasElement.width = parseInt(width, 10);
         this._outputCanvasElement.height = parseInt(height, 10);
-        
+        this._inputVideoCanvasElement.width = parseInt(width, 10);
+        this._inputVideoCanvasElement.height = parseInt(height, 10);
         
         this._inputVideoElement.width = parseInt(width, 10);
         this._inputVideoElement.height = parseInt(height, 10);
@@ -436,9 +437,17 @@ export default class JitsiStreamVideoEffectFilters {
 			case BUNNY_EARS_ENABLED:
 				this._effectImage.src = 'images/bunny_ears.png';
 				break;
-			case POI_FILTER_ENABLED:
-				this._effectImage.src = 'images/poi_effect.png';
+			case POI_FILTER_GREY_ENABLED:
+				this._effectImage.src = 'images/poi_effect_grey.png';
 				break;
+			case POI_FILTER_RED_ENABLED:
+				this._effectImage.src = 'images/poi_effect_red.png';
+				break;
+			case POI_FILTER_YELLOW_ENABLED:
+				this._effectImage.src = 'images/poi_effect_yellow.png';
+				break;
+			default:
+				this._effectImage.src = undefined;
 		}
 		console.log('Switched effect to: ' + selectedVideoEffectFilter + '-----------------------------------------------------')
 	}

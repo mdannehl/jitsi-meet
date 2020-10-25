@@ -3,8 +3,11 @@
 import { getLocalVideoTrack } from '../../features/base/tracks';
 
 import { 
+	BLUR_ENABLED,
 	BUNNY_EARS_ENABLED, 
-	POI_FILTER_ENABLED,
+	POI_FILTER_GREY_ENABLED,
+	POI_FILTER_RED_ENABLED,
+	POI_FILTER_YELLOW_ENABLED,
 	VIDEO_EFFECT_FILTERS_DISABLED 
 } from './actionTypes';
 
@@ -26,11 +29,20 @@ export function setVideoEffectFilter(selectedVideoEffectFilter) {
 	    let actionToDispatch;
 	    
 	    switch(selectedVideoEffectFilter) {
+			case BLUR_ENABLED:
+				actionToDispatch = blurEnabled();
+				break;
 			case BUNNY_EARS_ENABLED:
 				actionToDispatch = bunnyEarsEnabled();
 				break;
-			case POI_FILTER_ENABLED:
-				actionToDispatch = poiFilterEnabled();
+			case POI_FILTER_GREY_ENABLED:
+				actionToDispatch = poiFilterGreyEnabled();
+				break;
+			case POI_FILTER_RED_ENABLED:
+				actionToDispatch = poiFilterRedEnabled();
+				break;
+			case POI_FILTER_YELLOW_ENABLED:
+				actionToDispatch = poiFilterYellowEnabled();
 				break;
 			case VIDEO_EFFECT_FILTERS_DISABLED:
 			default:
@@ -65,10 +77,19 @@ export function setVideoEffectFilter(selectedVideoEffectFilter) {
     };
 }
 
+/**
+* Action creator that signals that the local participant has enabled 
+* the background blur video effect filter.
+*/
+function blurEnabled() {
+    return {
+	    type: BLUR_ENABLED
+    };
+}
 
 /**
 * Action creator that signals that the local participant has enabled 
-* the bunny ears effect filter.
+* the bunny ears video effect filter.
 */
 function bunnyEarsEnabled() {
     return {
@@ -78,11 +99,31 @@ function bunnyEarsEnabled() {
 
 /**
 * Action creator that signals that the local participant has 
-* enabled the person of interest effect filter.
+* enabled the grey person of interest video effect filter.
 */
-function poiFilterEnabled() {
+function poiFilterGreyEnabled() {
     return {
-	    type: POI_FILTER_ENABLED
+	    type: POI_FILTER_GREY_ENABLED
+    };
+}
+
+/**
+* Action creator that signals that the local participant has 
+* enabled the red person of interest video effect filter.
+*/
+function poiFilterRedEnabled() {
+    return {
+	    type: POI_FILTER_RED_ENABLED
+    };
+}
+
+/**
+* Action creator that signals that the local participant has 
+* enabled the yellow person of interest video effect filter.
+*/
+function poiFilterYellowEnabled() {
+    return {
+	    type: POI_FILTER_YELLOW_ENABLED
     };
 }
 
