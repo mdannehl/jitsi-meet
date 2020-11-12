@@ -7,9 +7,9 @@ import { connect } from '../../base/redux';
 import {
 	BLUR_ENABLED,
 	BUNNY_EARS_ENABLED, 
-	POI_FILTER_GREY_ENABLED,
-	POI_FILTER_RED_ENABLED,
-	POI_FILTER_YELLOW_ENABLED,
+	FRAMED_FACE_GREY_ENABLED,
+	FRAMED_FACE_RED_ENABLED,
+	FRAMED_FACE_YELLOW_ENABLED,
 	VIDEO_EFFECT_FILTERS_DISABLED 
 } from '../actionTypes';
 
@@ -83,27 +83,27 @@ class VideoEffectFilterChooser extends Component<Props> {
 					</label><br/>
 					<label className="video-effect-filters-label">
 						<input type="radio" className="video-effect-filters-radio"
-							value = {POI_FILTER_GREY_ENABLED}
-							checked = {_selectedVideoEffectFilter === POI_FILTER_GREY_ENABLED}
+							value = {FRAMED_FACE_GREY_ENABLED}
+							checked = {_selectedVideoEffectFilter === FRAMED_FACE_GREY_ENABLED}
 							onChange = {this.onRadioValueChange}
 						/>
-						Person of Interest - Grey
+						Framed Face - Grey
 					</label><br/>
 					<label className="video-effect-filters-label">
 						<input type="radio" className="video-effect-filters-radio"
-							value = {POI_FILTER_RED_ENABLED}
-							checked = {_selectedVideoEffectFilter === POI_FILTER_RED_ENABLED}
+							value = {FRAMED_FACE_RED_ENABLED}
+							checked = {_selectedVideoEffectFilter === FRAMED_FACE_RED_ENABLED}
 							onChange = {this.onRadioValueChange}
 						/>
-						Person of Interest - Red
+						Framed Face - Red
 					</label><br/>
 					<label className="video-effect-filters-label">
 						<input type="radio" className="video-effect-filters-radio"
-							value = {POI_FILTER_YELLOW_ENABLED}
-							checked = {_selectedVideoEffectFilter === POI_FILTER_YELLOW_ENABLED}
+							value = {FRAMED_FACE_YELLOW_ENABLED}
+							checked = {_selectedVideoEffectFilter === FRAMED_FACE_YELLOW_ENABLED}
 							onChange = {this.onRadioValueChange}
 						/>
-						Person of Interest - Yellow
+						Framed Face - Yellow
 					</label><br/>
 					<label className="video-effect-filters-label">
 						<input type="radio" className="video-effect-filters-radio"

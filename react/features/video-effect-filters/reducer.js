@@ -3,9 +3,9 @@ import { ReducerRegistry } from '../base/redux';
 import { 
 	BLUR_ENABLED,
 	BUNNY_EARS_ENABLED, 
-	POI_FILTER_GREY_ENABLED,
-	POI_FILTER_RED_ENABLED,
-	POI_FILTER_YELLOW_ENABLED,
+	FRAMED_FACE_GREY_ENABLED,
+	FRAMED_FACE_RED_ENABLED,
+	FRAMED_FACE_YELLOW_ENABLED,
 	VIDEO_EFFECT_FILTERS_DISABLED 
 } from './actionTypes';
 
@@ -24,22 +24,22 @@ ReducerRegistry.register('features/video-effect-filters', (state = {}, action) =
 	    currentVideoEffectFilter: BUNNY_EARS_ENABLED
 	};
     }
-    case POI_FILTER_GREY_ENABLED: {
+    case FRAMED_FACE_GREY_ENABLED: {
 	return {
 	    ...state,
-	    currentVideoEffectFilter: POI_FILTER_GREY_ENABLED
+	    currentVideoEffectFilter: FRAMED_FACE_GREY_ENABLED
 	};
     }
-    case POI_FILTER_RED_ENABLED: {
+    case FRAMED_FACE_RED_ENABLED: {
 	return {
 	    ...state,
-	    currentVideoEffectFilter: POI_FILTER_RED_ENABLED
+	    currentVideoEffectFilter: FRAMED_FACE_RED_ENABLED
 	};
     }
-    case POI_FILTER_YELLOW_ENABLED: {
+    case FRAMED_FACE_YELLOW_ENABLED: {
 	return {
 	    ...state,
-	    currentVideoEffectFilter: POI_FILTER_YELLOW_ENABLED
+	    currentVideoEffectFilter: FRAMED_FACE_YELLOW_ENABLED
 	};
     }
     case VIDEO_EFFECT_FILTERS_DISABLED: {

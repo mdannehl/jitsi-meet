@@ -13,21 +13,21 @@ export const BUNNY_EARS_ENABLED = 'BUNNY_EARS_ENABLED';
 
 /**
 * Redux action type that represents that the local participant enabled 
-* the grey person of interest effect filter.
+* the grey framed face effect filter.
 */
-export const POI_FILTER_GREY_ENABLED = 'POI_FILTER_GREY_ENABLED';
+export const FRAMED_FACE_GREY_ENABLED = 'FRAMED_FACE_GREY_ENABLED';
 
 /**
 * Redux action type that represents that the local participant enabled 
-* the red person of interest effect filter.
+* the red framed face effect filter.
 */
-export const POI_FILTER_RED_ENABLED = 'POI_FILTER_RED_ENABLED';
+export const FRAMED_FACE_RED_ENABLED = 'FRAMED_FACE_RED_ENABLED';
 
 /**
 * Redux action type that represents that the local participant enabled 
-* the yellow person of interest effect filter.
+* the yellow framed face effect filter.
 */
-export const POI_FILTER_YELLOW_ENABLED = 'POI_FILTER_YELLOW_ENABLED';
+export const FRAMED_FACE_YELLOW_ENABLED = 'FRAMED_FACE_YELLOW_ENABLED';
 
 /**
 * Redux action type that represents that the local participant chose

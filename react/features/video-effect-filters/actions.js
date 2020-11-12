@@ -5,9 +5,9 @@ import { getLocalVideoTrack } from '../../features/base/tracks';
 import { 
 	BLUR_ENABLED,
 	BUNNY_EARS_ENABLED, 
-	POI_FILTER_GREY_ENABLED,
-	POI_FILTER_RED_ENABLED,
-	POI_FILTER_YELLOW_ENABLED,
+	FRAMED_FACE_GREY_ENABLED,
+	FRAMED_FACE_RED_ENABLED,
+	FRAMED_FACE_YELLOW_ENABLED,
 	VIDEO_EFFECT_FILTERS_DISABLED 
 } from './actionTypes';
 
@@ -35,14 +35,14 @@ export function setVideoEffectFilter(selectedVideoEffectFilter) {
 			case BUNNY_EARS_ENABLED:
 				actionToDispatch = bunnyEarsEnabled();
 				break;
-			case POI_FILTER_GREY_ENABLED:
-				actionToDispatch = poiFilterGreyEnabled();
+			case FRAMED_FACE_GREY_ENABLED:
+				actionToDispatch = framedFaceGreyEnabled();
 				break;
-			case POI_FILTER_RED_ENABLED:
-				actionToDispatch = poiFilterRedEnabled();
+			case FRAMED_FACE_RED_ENABLED:
+				actionToDispatch = framedFaceRedEnabled();
 				break;
-			case POI_FILTER_YELLOW_ENABLED:
-				actionToDispatch = poiFilterYellowEnabled();
+			case FRAMED_FACE_YELLOW_ENABLED:
+				actionToDispatch = framedFaceYellowEnabled();
 				break;
 			case VIDEO_EFFECT_FILTERS_DISABLED:
 			default:
@@ -99,31 +99,31 @@ function bunnyEarsEnabled() {
 
 /**
 * Action creator that signals that the local participant has 
-* enabled the grey person of interest video effect filter.
+* enabled the grey face-frame video effect filter.
 */
-function poiFilterGreyEnabled() {
+function framedFaceGreyEnabled() {
     return {
-	    type: POI_FILTER_GREY_ENABLED
+	    type: FRAMED_FACE_GREY_ENABLED
     };
 }
 
 /**
 * Action creator that signals that the local participant has 
-* enabled the red person of interest video effect filter.
+* enabled the red face-frame video effect filter.
 */
-function poiFilterRedEnabled() {
+function framedFaceRedEnabled() {
     return {
-	    type: POI_FILTER_RED_ENABLED
+	    type: FRAMED_FACE_RED_ENABLED
     };
 }
 
 /**
 * Action creator that signals that the local participant has 
-* enabled the yellow person of interest video effect filter.
+* enabled the yellow face-frame video effect filter.
 */
-function poiFilterYellowEnabled() {
+function framedFaceYellowEnabled() {
     return {
-	    type: POI_FILTER_YELLOW_ENABLED
+	    type: FRAMED_FACE_YELLOW_ENABLED
     };
 }
 
